@@ -185,15 +185,15 @@
     </div>
 
     <div id="resultScreen" class="hidden bg-slate-800/90 border border-slate-700/80 p-8 sm:p-10 rounded-2xl shadow-2xl text-center max-w-md mx-auto w-full space-y-5 backdrop-blur-md">
-      <div id="resultIcon" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
-        ✅
+      <div id="resultIcon" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner animate-pulse">
+        ⏳
       </div>
-      <h2 id="resultTitle" class="text-2xl font-bold text-white">Ujian Telah Selesai!</h2>
+      <h2 id="resultTitle" class="text-2xl font-bold text-white">Memproses Hasil Ujian...</h2>
       <p id="resultDesc" class="text-slate-300 text-xs sm:text-sm leading-relaxed">
-        Terima kasih telah menyelesaikan pengerjaan IST Subtest 3 (Kesamaan Kata). Jawaban Anda telah tersimpan secara aman di server evaluasi psikotes.
+        Mohon tunggu sebentar, sistem sedang mengirimkan jawaban dan memproses hasil evaluasi psikotes Anda ke server.
       </p>
 
-      <div id="resultInfoBox" class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-xs text-blue-300 leading-relaxed text-left space-y-1">
+      <div id="resultInfoBox" class="hidden bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-xs text-blue-300 leading-relaxed text-left space-y-1">
         <p class="font-bold text-blue-400 flex items-center gap-1.5">📄 Hasil & Laporan Evaluasi:</p>
         <p>Laporan detail evaluasi dan lembar skoring otomatis dalam format <b>PDF</b> telah dikirimkan ke email terdaftar Anda.</p>
       </div>
@@ -206,32 +206,39 @@
   </footer>
 
   <script>
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-    });
+    // =====================================================================
+    // ⚠️ MASUKKAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA DI BAWAH INI ⚠️
+    // =====================================================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgy4gTYz1KpdQFtXxIlnYvbvjSYsPfdn9-UmE0hYjwBzQi6lKkUadANYf8Yfs-UxwP/exec";
+    // =====================================================================
 
+    // Fungsi komunikasi API dengan server Google
+    async function sendDataToServer(action, payload) {
+      payload.action = action;
+      try {
+        let response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8', 
+          },
+          body: JSON.stringify(payload)
+        });
+        return await response.json();
+      } catch (error) {
+        console.error("Gagal mengirim data:", error);
+        return { success: false, message: error.message };
+      }
+    }
+
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'F12' || e.keyCode === 123) {
-        e.preventDefault();
-        return false;
-      }
-      if (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) {
-        e.preventDefault();
-        return false;
-      }
-      if (e.metaKey && e.altKey && ['I','i','J','j','C','c'].includes(e.key)) {
-        e.preventDefault();
-        return false;
-      }
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) {
-        e.preventDefault();
-        return false;
-      }
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'S' || e.key === 's')) {
-        e.preventDefault();
-        return false;
-      }
+      if (e.key === 'F12' || e.keyCode === 123) return prevent(e);
+      if (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) return prevent(e);
+      if (e.metaKey && e.altKey && ['I','i','J','j','C','c'].includes(e.key)) return prevent(e);
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) return prevent(e);
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'S' || e.key === 's')) return prevent(e);
     });
+    function prevent(e) { e.preventDefault(); return false; }
 
     const questionsData = [
       { no: 41, options: [{ key: "a", label: "penginapan" }, { key: "b", label: "jalan" }, { key: "c", label: "taman" }, { key: "d", label: "kantor" }, { key: "e", label: "rumah" }, { key: "f", label: "kafe" }] },
@@ -281,16 +288,18 @@
       btn.innerText = "Memverifikasi...";
       errBox.classList.add("hidden");
 
+      if (SCRIPT_URL === "MASUKKAN_URL_WEB_APP_APPS_SCRIPT_ANDA_DI_SINI") {
+        showError("Sistem belum dikonfigurasi. Masukkan SCRIPT_URL di dalam kode HTML.");
+        btn.disabled = false;
+        btn.innerText = "Verifikasi & Masuk Ujian →";
+        return;
+      }
+
       try {
-        if (typeof google !== 'undefined' && google.script && google.script.run) {
-          google.script.run.withSuccessHandler(onLoginResult).checkLogin(u, p);
-        } else {
-          setTimeout(() => {
-            onLoginResult({ success: true, name: u, email: u + "@gmail.com", username: u });
-          }, 600);
-        }
+        let res = await sendDataToServer("checkLogin", { username: u, password: p });
+        onLoginResult(res);
       } catch (e) {
-        onLoginResult({ success: true, name: u, email: "", username: u });
+        onLoginResult({ success: false, message: "Gagal terhubung ke server login!" });
       }
     }
 
@@ -391,9 +400,12 @@
 
       let photoBase64 = await takeSnapshot("PELANGGARAN_" + violations);
 
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run.saveSnapshot(photoBase64, currentUser.username, "PELANGGARAN_" + violations);
-      }
+      // Kirim data pelanggaran ke Apps Script tanpa mengganggu UI
+      sendDataToServer("saveSnapshot", { 
+        imageBase64: photoBase64, 
+        username: currentUser.username, 
+        triggerType: "PELANGGARAN_" + violations 
+      });
 
       if (violations >= MAX_VIOLATIONS) {
         triggerTakeOut("Diskualifikasi otomatis akibat terdeteksi " + violations + "x pelanggaran (" + reason + ").");
@@ -539,16 +551,35 @@
       document.getElementById("resultScreen").classList.remove("hidden");
 
       if (isTakeOut) {
-        document.getElementById("resultIcon").className = "w-16 h-16 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner";
+        document.getElementById("resultIcon").className = "w-16 h-16 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner animate-pulse";
         document.getElementById("resultIcon").innerText = "⚠️";
-        document.getElementById("resultTitle").innerText = "Ujian Didiskualifikasi (Take Out)";
-        document.getElementById("resultDesc").innerText = "Anda telah dikeluarkan dari sesi ujian karena melanggar ketentuan proctoring sistem.";
+        document.getElementById("resultTitle").innerText = "Memproses Diskualifikasi...";
+        document.getElementById("resultDesc").innerText = "Anda dikeluarkan dari sesi ujian. Sistem sedang merekam pelanggaran Anda...";
       }
 
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(() => { console.log("Ujian berhasil disubmit ke server."); })
-          .submitUjian(currentUser, userAnswers, finalPhotoBase64, violations, isTakeOut);
+      // Kirim hasil ujian secara async
+      let res = await sendDataToServer("submitUjian", { 
+        userData: currentUser, 
+        answers: userAnswers, 
+        imageBase64: finalPhotoBase64, 
+        violations: violations, 
+        isTakeOut: isTakeOut 
+      });
+
+      console.log("Status pengiriman:", res);
+      
+      // Update tampilan sukses
+      document.getElementById("resultIcon").classList.remove("animate-pulse");
+      
+      if (isTakeOut) {
+        document.getElementById("resultTitle").innerText = "Ujian Didiskualifikasi (Take Out)";
+        document.getElementById("resultDesc").innerText = "Anda telah dikeluarkan dari sesi ujian karena melanggar ketentuan proctoring sistem.";
+      } else {
+        document.getElementById("resultIcon").className = "w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner";
+        document.getElementById("resultIcon").innerText = "✅";
+        document.getElementById("resultTitle").innerText = "Ujian Telah Selesai!";
+        document.getElementById("resultDesc").innerText = "Terima kasih telah menyelesaikan pengerjaan IST Subtest 3 (Kesamaan Kata). Jawaban Anda telah tersimpan secara aman.";
+        document.getElementById("resultInfoBox").classList.remove("hidden");
       }
     }
   </script>
