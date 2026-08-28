@@ -272,7 +272,7 @@
 
     </div>
 
-    <!-- SCREEN 4: HASIL -->
+    <!-- SCREEN 4: HASIL / BLOKIR -->
     <div id="resultScreen" class="hidden bg-slate-800/90 border border-slate-700/80 p-8 sm:p-10 rounded-2xl shadow-2xl text-center max-w-md mx-auto w-full space-y-5 backdrop-blur-sm">
       <div id="resultIcon" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto">
         ✅
@@ -282,7 +282,7 @@
         Terima kasih telah menyelesaikan seluruh pengerjaan Subtest 3 (Kesamaan Kata). Rekaman jawaban Anda telah dikirim secara aman ke sistem evaluasi.
       </p>
 
-      <div class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-xs text-blue-300 leading-relaxed text-left space-y-1">
+      <div id="resultInfoBox" class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-xs text-blue-300 leading-relaxed text-left space-y-1">
         <p class="font-bold text-blue-400">📄 Laporan Evaluasi PDF:</p>
         <p>Laporan hasil ujian resmi dalam format <b>PDF</b> telah dikirimkan secara otomatis ke alamat email yang terdaftar.</p>
       </div>
@@ -297,7 +297,7 @@
 
   <script>
     // MASUKKAN URL WEB APP APPS SCRIPT ANDA DI SINI
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1Nvybl0OhFSSjriq4Ua0equYpO3bxz_L9Py_NZ7g1bodLHOUqzlL20z2rVbcKw_Lm/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6U74dJg-3_OxtN8pU5_pA4l_-ID_YOUR_DEPLOYMENT_ID_/exec";
 
     // DATA SOAL 41 - 60 (IST SUBTEST 3 - KESAMAAN KATA)
     const questionsData = [
@@ -667,7 +667,11 @@
 
       if (violationCount >= 3) {
         isExamActive = false;
-        alert("⚠️ PELANGGARAN MAKSIMAL (3x)! Anda dideteksi melakukan kecurangan. Ujian dihentikan dan Anda di-Take Out.");
+        // Langsung sembunyikan antarmuka ujian agar tidak bisa diklik
+        document.getElementById('examScreen').classList.add('hidden');
+        alert("⚠️ PELANGGARAN MAKSIMAL (3x)!\nAnda dideteksi melakukan kecurangan. Akses ujian dihentikan secara permanen.");
+        
+        // Eksekusi kirim jawaban otomatis sebagai Take Out
         submitExam(true);
       } else {
         alert(`⚠️ PERINGATAN PELANGGARAN (${violationCount}/3)!\nAlasan: ${reason}.\nJika mencapai 3x pelanggaran Anda akan otomatis di-Take Out!`);
@@ -764,7 +768,6 @@
         userAnswers[qNo] = arr.filter(k => k !== key);
       } else {
         if (arr.length >= 2) {
-          // Ganti pilihan tertua jika sudah memilih 2
           arr.shift();
         }
         arr.push(key);
@@ -833,9 +836,17 @@
       clearInterval(timerInterval);
       clearInterval(photoInterval);
 
+      // Matikan Webcam
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+      document.getElementById('webcamContainer').classList.add('hidden');
+
       const btnSubmit = document.getElementById('btnSubmit');
-      btnSubmit.disabled = true;
-      btnSubmit.innerText = "Mengirim Jawaban...";
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "Mengirim Jawaban...";
+      }
 
       const submitPhoto = takeSnapshot(isForcedByCheat ? "TAKEOUT" : "SUBMIT");
 
@@ -854,33 +865,25 @@
         isTakeOut: isForcedByCheat
       })
       .then(res => {
-        if (videoStream) {
-          videoStream.getTracks().forEach(track => track.stop());
+        document.getElementById('examScreen').classList.add('hidden');
+        setStep(4);
+
+        if (isForcedByCheat) {
+          // Tampilan Blokir Merah Permanen
+          document.getElementById('resultIcon').className = "w-16 h-16 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto";
+          document.getElementById('resultIcon').innerText = "🚫";
+          document.getElementById('resultTitle').innerText = "UJIAN DIBATALKAN (DISKUALIFIKASI)";
+          document.getElementById('resultTitle').classList.add("text-rose-400");
+          document.getElementById('resultDesc').innerHTML = "<b class='text-rose-300'>AKSES ANDA TELAH DIBLOKIR PERMANEN.</b><br>Sistem mendeteksi 3 kali pelanggaran (keluar dari tab/layar ujian). Pengerjaan dihentikan dan jawaban dikirim dengan status diskualifikasi.";
+          document.getElementById('resultInfoBox').className = "bg-rose-500/10 border border-rose-500/30 p-4 rounded-xl text-xs text-rose-300 leading-relaxed text-left space-y-1";
+          document.getElementById('resultInfoBox').innerHTML = "<p class='font-bold text-rose-400'>⚠️ Catatan Pelanggaran:</p><p>Hasil pengerjaan Anda telah ditandai sebagai kecurangan/Take Out pada database panitia.</p>";
         }
-        document.getElementById('webcamContainer').classList.add('hidden');
 
-        if (res.success) {
-          document.getElementById('examScreen').classList.add('hidden');
-          setStep(4);
-
-          if (isForcedByCheat) {
-            document.getElementById('resultIcon').className = "w-16 h-16 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto";
-            document.getElementById('resultIcon').innerText = "🚫";
-            document.getElementById('resultTitle').innerText = "UJIAN DIBATALKAN (TAKE OUT)";
-            document.getElementById('resultDesc').innerText = "Anda telah dikeluarkan dari sesi ujian karena terdeteksi melakukan pelanggaran aturan/kecurangan sebanyak 3 kali.";
-          }
-
-          document.getElementById('resultScreen').classList.remove('hidden');
-        } else {
-          alert("Terjadi kesalahan: " + res.error);
-          btnSubmit.disabled = false;
-          btnSubmit.innerText = "Kirim Jawaban";
-        }
+        document.getElementById('resultScreen').classList.remove('hidden');
       })
       .catch(err => {
-        alert("Gagal terhubung ke server: " + err);
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = "Kirim Jawaban";
+        document.getElementById('examScreen').classList.add('hidden');
+        document.getElementById('resultScreen').classList.remove('hidden');
       });
     }
   </script>
