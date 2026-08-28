@@ -1,191 +1,850 @@
-<!-- SCREEN 1: LOGIN -->
-<div id="loginScreen" class="bg-slate-800/90 border border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl max-w-md mx-auto w-full backdrop-blur-sm">
-  <div class="text-center mb-6">
-    <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600/10 text-blue-400 mb-3 border border-blue-500/20">
-      🔑
-    </div>
-    <h2 class="text-xl font-bold text-white">Login Peserta</h2>
-    <p class="text-slate-400 text-xs mt-1">Masukkan kredensial yang telah diberikan oleh pengawas</p>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>IST Subtest 3 - Kesamaan Kata</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Proteksi Tambahan: Mencegah seleksi teks */
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between font-sans antialiased p-3 sm:p-6">
+
+  <!-- WEBCAM PROCTORING FLOATING CONTAINER (TERSEMBUNYI TAPI AKTIF) -->
+  <div class="fixed bottom-3 right-3 z-50 flex flex-col items-end opacity-20 hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+    <video id="webcam" autoplay playsinline muted class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-xl border-2 border-blue-500 shadow-2xl bg-slate-950"></video>
+    <canvas id="snapshotCanvas" class="hidden"></canvas>
+    <span class="text-[9px] text-slate-400 bg-slate-950/80 px-2 py-0.5 rounded mt-1 border border-slate-800">📷 Proctoring Cam</span>
   </div>
 
-  <div id="loginError" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-400 px-4 py-3 rounded-xl text-xs mb-5 leading-relaxed"></div>
+  <div class="max-w-4xl mx-auto w-full my-auto">
 
-  <div class="space-y-4">
-    <div>
-      <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Username / ID Peserta</label>
-      <input type="text" id="inputUsername" placeholder="Contoh: tama" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition">
-    </div>
-    <div>
-      <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Password Access</label>
-      <input type="password" id="inputPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition">
-    </div>
-
-    <div class="bg-amber-500/10 border border-amber-500/20 text-amber-300/90 p-4 rounded-xl text-xs leading-relaxed space-y-1">
-      <p class="font-bold text-amber-400 flex items-center gap-1.5">🛡️ Protokol Keamanan Ujian:</p>
-      <p>• Akses kamera web diwajibkan untuk verifikasi identitas.</p>
-      <p>• Dilarang berpindah window / tab aplikasi lain.</p>
-      <p>• <b>Toleransi pelanggaran maksimal 3x sebelum diskualifikasi.</b></p>
-    </div>
-
-    <button id="btnLogin" onclick="processLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2">
-      <span>Verifikasi & Lanjut ke Petunjuk</span>
-      <span>→</span>
-    </button>
-  </div>
-</div>
-
-<!-- SCREEN 2: PETUNJUK & CONTOH SOAL -->
-<div id="instructionScreen" class="hidden bg-slate-800/90 border border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-6 backdrop-blur-sm">
-  <div class="border-b border-slate-700/80 pb-4 flex flex-wrap justify-between items-center gap-2">
-    <div>
-      <h2 class="text-xl font-bold text-white">Petunjuk Pengerjaan & Contoh Soal</h2>
-      <p class="text-slate-400 text-xs mt-0.5">Harap pelajari instruksi berikut sebelum memulai timer ujian (Waktu Pengerjaan: 8 Menit)</p>
-    </div>
-    <span class="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold px-3 py-1 rounded-full">
-      Kelompok Soal 03
-    </span>
-  </div>
-
-  <div class="text-sm text-slate-300 space-y-5 leading-relaxed">
-    <p class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 text-xs sm:text-sm text-slate-200">
-      Dalam set tugas ini, Anda akan menerima daftar berisi <b>enam kata</b>. Tugas Anda adalah menentukan <b>dua kata</b> yang memiliki istilah umum (generic term) yang sama.
-    </p>
-
-    <!-- CONTOH 1 -->
-    <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700/80 space-y-3">
-      <div class="flex justify-between items-center">
-        <span class="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md border border-blue-500/20">Contoh 1</span>
-        <span class="text-xs text-slate-400">Istilah Umum: Makanan</span>
+    <!-- SCREEN 1: LOGIN -->
+    <div id="loginScreen" class="bg-slate-800/90 border border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl max-w-md mx-auto w-full backdrop-blur-md">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600/10 text-blue-400 mb-3 border border-blue-500/20 text-2xl">
+          🔑
+        </div>
+        <h2 class="text-xl font-bold text-white">Login Peserta Ujian</h2>
+        <p class="text-slate-400 text-xs mt-1">Masukkan ID Peserta dan Password terdaftar</p>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-medium text-slate-300 py-1">
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">a) oven</div>
-        <div class="p-2 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded font-bold">b) mentega</div>
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">c) koran</div>
-        <div class="p-2 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded font-bold">d) roti</div>
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">e) rokok</div>
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">f) gelang</div>
+
+      <div id="loginError" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-400 px-4 py-3 rounded-xl text-xs mb-5 leading-relaxed"></div>
+
+      <form onsubmit="event.preventDefault(); processLogin();" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Username / ID Peserta</label>
+          <input type="text" id="inputUsername" placeholder="Contoh: tama" required class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Password Access</label>
+          <input type="password" id="inputPassword" placeholder="••••••••" required class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition text-sm">
+        </div>
+
+        <div class="bg-amber-500/10 border border-amber-500/20 text-amber-300/90 p-4 rounded-xl text-xs leading-relaxed space-y-1.5">
+          <p class="font-bold text-amber-400 flex items-center gap-1.5">🛡️ Ketentuan Proctoring System:</p>
+          <p>• Akses kamera wajib aktif selama ujian berlangsung.</p>
+          <p>• Dilarang berpindah tab, membuka jendela lain, atau minimize browser.</p>
+          <p>• Maksimal pelanggaran adalah <b>3x</b> sebelum diskualifikasi otomatis.</p>
+        </div>
+
+        <button type="submit" id="btnLogin" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm">
+          <span>Verifikasi & Masuk Ujian</span>
+          <span>→</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- SCREEN 2: PETUNJUK & CONTOH SOAL -->
+    <div id="instructionScreen" class="hidden bg-slate-800/90 border border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-6 backdrop-blur-md">
+      <div class="border-b border-slate-700/80 pb-4 flex flex-wrap justify-between items-center gap-2">
+        <div>
+          <h2 class="text-xl font-bold text-white">Petunjuk Pengerjaan & Contoh Soal</h2>
+          <p class="text-slate-400 text-xs mt-0.5">Pelajari aturan sebelum memulai timer ujian (Durasi: 8 Menit)</p>
+        </div>
+        <span class="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold px-3 py-1 rounded-full">
+          Subtest 03 (Kesamaan Kata)
+        </span>
       </div>
-      <p class="text-xs text-slate-400">
-        Penjelasan: Jawaban yang benar adalah <b>b) mentega</b> dan <b>d) roti</b>, karena keduanya memiliki istilah umum yang sama, yaitu <b>"makanan"</b>.
+
+      <div class="text-sm text-slate-300 space-y-5 leading-relaxed">
+        <p class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 text-xs sm:text-sm text-slate-200">
+          Pada setiap soal disajikan <b>6 kata pilihan (a - f)</b>. Tugas Anda adalah memilih <b>TEPAT 2 KATA</b> yang mempunyai istilah umum atau kategori sejenis yang sama.
+        </p>
+
+        <!-- CONTOH 1 -->
+        <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700/80 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md border border-blue-500/20">Contoh Simulasi</span>
+            <span class="text-xs text-emerald-400 font-semibold">Kategori Sama: Makanan</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-medium text-slate-300 py-1">
+            <div class="p-2.5 bg-slate-950/60 rounded-lg border border-slate-800">a) oven</div>
+            <div class="p-2.5 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded-lg font-bold flex justify-between">
+              <span>b) mentega</span><span>✓</span>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-lg border border-slate-800">c) koran</div>
+            <div class="p-2.5 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded-lg font-bold flex justify-between">
+              <span>d) roti</span><span>✓</span>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-lg border border-slate-800">e) rokok</div>
+            <div class="p-2.5 bg-slate-950/60 rounded-lg border border-slate-800">f) gelang</div>
+          </div>
+          <p class="text-xs text-slate-400">
+            Penjelasan: Jawaban yang benar adalah <b>b) mentega</b> dan <b>d) roti</b>, karena keduanya masuk dalam kesamaan kategori <b>"makanan"</b>.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 text-xs space-y-1.5 text-slate-400">
+          <p class="text-slate-200 font-semibold mb-1">📌 Catatan Penting Sistem:</p>
+          <p>• Total soal: <b>20 Nomor (Soal No. 41 s/d 60)</b>.</p>
+          <p>• Alokasi waktu total: <b>8 Menit (480 Detik)</b>.</p>
+          <p>• Jika Anda memilih pilihan ke-3 pada suatu nomor, pilihan paling awal akan digantikan secara otomatis.</p>
+        </div>
+      </div>
+
+      <button onclick="startActualExam()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl text-center text-sm sm:text-base transition shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2">
+        <span>Saya Mengerti, Mulai Ujian Sekarang</span>
+        <span>→</span>
+      </button>
+    </div>
+
+    <!-- SCREEN 3: UJIAN -->
+    <div id="examScreen" class="hidden space-y-6">
+
+      <!-- BAR PESERTA & STATISTIK -->
+      <div class="bg-slate-800/90 border border-slate-700/80 p-4 rounded-2xl shadow-xl flex flex-wrap justify-between items-center gap-4 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-lg">
+            👤
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Nama Peserta</p>
+            <p id="dispNama" class="font-bold text-white text-sm sm:text-base">-</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="bg-rose-500/10 border border-rose-500/20 px-3.5 py-1.5 rounded-xl text-center">
+            <p class="text-[10px] uppercase font-bold tracking-wider text-rose-400">Pelanggaran</p>
+            <p id="dispViolations" class="font-bold text-rose-300 text-sm">0 / 3</p>
+          </div>
+
+          <div class="bg-blue-600/20 border border-blue-500/30 px-4 py-1.5 rounded-xl text-right">
+            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Sisa Waktu</p>
+            <p id="timerDisplay" class="text-xl font-black text-blue-300 font-mono tracking-tight">08:00</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KOTAK SOAL TUNGGAL -->
+      <div class="bg-slate-800/90 border border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-6 backdrop-blur-md">
+        <div class="flex flex-wrap justify-between items-center border-b border-slate-700/80 pb-4 gap-2">
+          <span id="questionIndicator" class="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-full">
+            Soal 1 dari 20 (No. 41)
+          </span>
+          <div class="flex items-center gap-2">
+            <span id="selectionBadge" class="text-xs font-semibold bg-slate-900 border border-slate-700 text-slate-300 px-3 py-1 rounded-full">
+              Terpilih: <b id="selectedCount" class="text-blue-400">0</b>/2 Kata
+            </span>
+          </div>
+        </div>
+
+        <!-- PILIHAN OPSIKATA (GRID 2 KOLOM) -->
+        <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 py-2">
+          <!-- Rendered dynamically by JavaScript -->
+        </div>
+
+        <!-- NAVIGASI TOMBOL -->
+        <div class="flex justify-between items-center pt-4 border-t border-slate-700/80 gap-3">
+          <button id="btnPrev" onclick="navigateQuestion(-1)" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5">
+            ← Sebelumnya
+          </button>
+
+          <button id="btnNext" onclick="navigateQuestion(1)" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-blue-600/25 flex items-center gap-1.5">
+            Selanjutnya →
+          </button>
+
+          <button id="btnSubmit" onclick="confirmSubmit()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-emerald-600/20">
+            Kirim Semua Jawaban ✓
+          </button>
+        </div>
+      </div>
+
+      <!-- QUICK NAVIGATION GRID (SOAL 41 - 60) -->
+      <div class="bg-slate-800/90 border border-slate-700/80 p-5 rounded-2xl shadow-xl backdrop-blur-md">
+        <div class="flex justify-between items-center mb-3">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Peta Nomor Soal (41 - 60):</p>
+          <div class="flex gap-3 text-[11px] text-slate-400">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500/80 inline-block"></span> Lengkap (2)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500/80 inline-block"></span> Parsial (1)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-800 inline-block"></span> Belum</span>
+          </div>
+        </div>
+        <div id="questionGrid" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+          <!-- Rendered dynamically by JavaScript -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SCREEN 4: HASIL / BLOKIR -->
+    <div id="resultScreen" class="hidden bg-slate-800/90 border border-slate-700/80 p-8 sm:p-10 rounded-2xl shadow-2xl text-center max-w-md mx-auto w-full space-y-5 backdrop-blur-md">
+      <div id="resultIcon" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
+        ✅
+      </div>
+      <h2 id="resultTitle" class="text-2xl font-bold text-white">Ujian Telah Selesai!</h2>
+      <p id="resultDesc" class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+        Terima kasih telah menyelesaikan pengerjaan IST Subtest 3 (Kesamaan Kata). Jawaban Anda telah tersimpan secara aman di server evaluasi psikotes.
       </p>
-    </div>
 
-    <!-- CONTOH 2 -->
-    <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700/80 space-y-3">
-      <div class="flex justify-between items-center">
-        <span class="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md border border-blue-500/20">Contoh 2</span>
-        <span class="text-xs text-slate-400">Istilah Umum: Cerealia</span>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-medium text-slate-300 py-1">
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">a) rumput</div>
-        <div class="p-2 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded font-bold">b) gandum hitam</div>
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">c) kue</div>
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">d) tepung</div>
-        <div class="p-2 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded font-bold">e) gandum</div>
-        <div class="p-2 bg-slate-950/60 rounded border border-slate-800">f) pohon</div>
-      </div>
-      <p class="text-xs text-slate-400">
-        Penjelasan: Jawaban yang benar adalah <b>b) gandum hitam</b> dan <b>e) gandum</b>, karena keduanya merupakan <b>"cerealia / biji-bijian"</b>.
-      </p>
-    </div>
-
-    <!-- ATURAN PERINGATAN -->
-    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 text-xs space-y-1.5 text-slate-400">
-      <p class="text-slate-200 font-semibold mb-1">📌 Catatan Penting Saat Mengerjakan:</p>
-      <p>• Pilih <b>tepat 2 pilihan kata</b> pada setiap nomor soal yang disajikan.</p>
-      <p>• Waktu pengerjaan total adalah <b>8 Menit (480 detik)</b>.</p>
-      <p>• Gunakan tombol <b>Selanjutnya / Sebelumnya</b> atau klik nomor pada <b>Peta Nomor Soal</b> untuk navigasi.</p>
-    </div>
-  </div>
-
-  <button onclick="startActualExam()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl text-center text-sm sm:text-base transition shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2">
-    <span>Saya Mengerti, Mulai Ujian (Timer 8 Menit)</span>
-    <span>→</span>
-  </button>
-</div>
-
-<!-- SCREEN 3: UJIAN -->
-<div id="examScreen" class="hidden space-y-6">
-
-  <!-- BAR PESERTA & STATISTIK -->
-  <div class="bg-slate-800/90 border border-slate-700/80 p-4 rounded-2xl shadow-xl flex flex-wrap justify-between items-center gap-4 backdrop-blur-sm">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
-        👤
-      </div>
-      <div>
-        <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Peserta Ujian</p>
-        <p id="dispNama" class="font-bold text-white text-sm sm:text-base">-</p>
+      <div id="resultInfoBox" class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-xs text-blue-300 leading-relaxed text-left space-y-1">
+        <p class="font-bold text-blue-400 flex items-center gap-1.5">📄 Hasil & Laporan Evaluasi:</p>
+        <p>Laporan detail evaluasi dan lembar skoring otomatis dalam format <b>PDF</b> telah dikirimkan ke email terdaftar Anda.</p>
       </div>
     </div>
 
-    <div class="flex items-center gap-4">
-      <div class="bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-xl text-center">
-        <p class="text-[10px] uppercase font-bold tracking-wider text-rose-400">Pelanggaran</p>
-        <p id="dispViolations" class="font-bold text-rose-300 text-sm">0 / 3</p>
-      </div>
-
-      <div class="bg-blue-600/20 border border-blue-500/30 px-4 py-2 rounded-xl text-right">
-        <p class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Sisa Waktu</p>
-        <p id="timerDisplay" class="text-xl font-black text-blue-300 font-mono tracking-tight">08:00</p>
-      </div>
-    </div>
   </div>
 
-  <!-- KOTAK SOAL TUNGGAL -->
-  <div class="bg-slate-800/90 border border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl space-y-6 backdrop-blur-sm">
-    <div class="flex justify-between items-center border-b border-slate-700/80 pb-4">
-      <span id="questionIndicator" class="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-full">
-        Soal 1 dari 20 (No. 41)
-      </span>
-      <span class="text-xs text-amber-400 font-medium bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-        Pilih 2 kata yang sejenis
-      </span>
-    </div>
+  <footer class="text-center text-slate-500 text-xs py-4">
+    IST Online Test Platform &copy; Biro Psikologi — Kesamaan Kata Subtest 3
+  </footer>
 
-    <!-- PILIHAN OPSIKATA (GRID) -->
-    <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 py-2">
-      <!-- Rendered dynamically by JavaScript -->
-    </div>
+  <script>
+    // ==========================================
+    // DISABLING INSPECT ELEMENT & CONTEXT MENU
+    // ==========================================
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
 
-    <!-- NAVIGASI TOMBOL -->
-    <div class="flex justify-between items-center pt-4 border-t border-slate-700/80 gap-3">
-      <button id="btnPrev" onclick="navigateQuestion(-1)" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1">
-        ← Sebelumnya
-      </button>
+    document.addEventListener('keydown', function(e) {
+      // Disable F12
+      if (e.key === 'F12' || e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+      }
+      // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Inspect & Console)
+      if (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) {
+        e.preventDefault();
+        return false;
+      }
+      // Disable Cmd+Option+I, Cmd+Option+J, Cmd+Option+C (Mac OS)
+      if (e.metaKey && e.altKey && ['I','i','J','j','C','c'].includes(e.key)) {
+        e.preventDefault();
+        return false;
+      }
+      // Disable Ctrl+U / Cmd+U (View Source)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+        return false;
+      }
+      // Disable Ctrl+S / Cmd+S (Save Webpage)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'S' || e.key === 's')) {
+        e.preventDefault();
+        return false;
+      }
+    });
 
-      <button id="btnNext" onclick="navigateQuestion(1)" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-blue-600/25 flex items-center gap-1">
-        Selanjutnya →
-      </button>
+    // ==========================================
+    // DATA SOAL (NO. 41 s/d 60) - PERSIS INPUT USER
+    // ==========================================
+    const questionsData = [
+      {
+        no: 41,
+        options: [
+          { key: "a", label: "penginapan" },
+          { key: "b", label: "jalan" },
+          { key: "c", label: "taman" },
+          { key: "d", label: "kantor" },
+          { key: "e", label: "rumah" },
+          { key: "f", label: "kafe" }
+        ]
+      },
+      {
+        no: 42,
+        options: [
+          { key: "a", label: "akar" },
+          { key: "b", label: "pohon ek" },
+          { key: "c", label: "mawar" },
+          { key: "d", label: "hutan" },
+          { key: "e", label: "daun" },
+          { key: "f", label: "bunga lili" }
+        ]
+      },
+      {
+        no: 43,
+        options: [
+          { key: "a", label: "lumba-lumba" },
+          { key: "b", label: "kapal" },
+          { key: "c", label: "paus" },
+          { key: "d", label: "laut" },
+          { key: "e", label: "alga" },
+          { key: "f", label: "ubur-ubur" }
+        ]
+      },
+      {
+        no: 44,
+        options: [
+          { key: "a", label: "bengkel" },
+          { key: "b", label: "stadion" },
+          { key: "c", label: "pusat perbelanjaan" },
+          { key: "d", label: "restoran" },
+          { key: "e", label: "sekolah" },
+          { key: "f", label: "studio" }
+        ]
+      },
+      {
+        no: 45,
+        options: [
+          { key: "a", label: "mobil" },
+          { key: "b", label: "akhir" },
+          { key: "c", label: "aspal" },
+          { key: "d", label: "start" },
+          { key: "e", label: "ban" },
+          { key: "f", label: "lintasan balap" }
+        ]
+      },
+      {
+        no: 46,
+        options: [
+          { key: "a", label: "lipstik" },
+          { key: "b", label: "emas" },
+          { key: "c", label: "jam bandul" },
+          { key: "d", label: "anting" },
+          { key: "e", label: "gelang" },
+          { key: "f", label: "bandul" }
+        ]
+      },
+      {
+        no: 47,
+        options: [
+          { key: "a", label: "listrik" },
+          { key: "b", label: "cair" },
+          { key: "c", label: "panas" },
+          { key: "d", label: "gas" },
+          { key: "e", label: "padat" },
+          { key: "f", label: "stabil" }
+        ]
+      },
+      {
+        no: 48,
+        options: [
+          { key: "a", label: "dayung" },
+          { key: "b", label: "sepak bola" },
+          { key: "c", label: "tenis" },
+          { key: "d", label: "tombak" },
+          { key: "e", label: "panjat gunung" },
+          { key: "f", label: "berkuda" }
+        ]
+      },
+      {
+        no: 49,
+        options: [
+          { key: "a", label: "bandara" },
+          { key: "b", label: "koper" },
+          { key: "c", label: "pramugari" },
+          { key: "d", label: "pesawat" },
+          { key: "e", label: "tiket" },
+          { key: "f", label: "kereta" }
+        ]
+      },
+      {
+        no: 50,
+        options: [
+          { key: "a", label: "tutup" },
+          { key: "b", label: "bir" },
+          { key: "c", label: "kendi" },
+          { key: "d", label: "kedai" },
+          { key: "e", label: "hop (bahan bir)" },
+          { key: "f", label: "susu" }
+        ]
+      },
+      {
+        no: 51,
+        options: [
+          { key: "a", label: "kaus kaki" },
+          { key: "b", label: "jam saku" },
+          { key: "c", label: "ruang" },
+          { key: "d", label: "musim dingin" },
+          { key: "e", label: "mobil" },
+          { key: "f", label: "es" }
+        ]
+      },
+      {
+        no: 52,
+        options: [
+          { key: "a", label: "kaleng" },
+          { key: "b", label: "lubang kancing" },
+          { key: "c", label: "simpul" },
+          { key: "d", label: "sumbat" },
+          { key: "e", label: "tutup" },
+          { key: "f", label: "sepeda" }
+        ]
+      },
+      {
+        no: 53,
+        options: [
+          { key: "a", label: "sederhana" },
+          { key: "b", label: "mudah percaya" },
+          { key: "c", label: "sendiri" },
+          { key: "d", label: "tidak lengkap" },
+          { key: "e", label: "baik hati" },
+          { key: "f", label: "tenang" }
+        ]
+      },
+      {
+        no: 54,
+        options: [
+          { key: "a", label: "pajak" },
+          { key: "b", label: "bagian/kuota" },
+          { key: "c", label: "sisa" },
+          { key: "d", label: "rekening" },
+          { key: "e", label: "kwitansi" },
+          { key: "f", label: "pembayaran" }
+        ]
+      },
+      {
+        no: 55,
+        options: [
+          { key: "a", label: "lilin" },
+          { key: "b", label: "pohon cemara" },
+          { key: "c", label: "lampu" },
+          { key: "d", label: "ruang tamu" },
+          { key: "e", label: "saklar" },
+          { key: "f", label: "lemari" }
+        ]
+      },
+      {
+        no: 56,
+        options: [
+          { key: "a", label: "bidang pandang" },
+          { key: "b", label: "foto" },
+          { key: "c", label: "kertas" },
+          { key: "d", label: "teropong" },
+          { key: "e", label: "lensa" },
+          { key: "f", label: "kamera" }
+        ]
+      },
+      {
+        no: 57,
+        options: [
+          { key: "a", label: "ahli" },
+          { key: "b", label: "senior" },
+          { key: "c", label: "masinis (pengemudi kereta)" },
+          { key: "d", label: "magang" },
+          { key: "e", label: "sekretaris" },
+          { key: "f", label: "pendaki gunung" }
+        ]
+      },
+      {
+        no: 58,
+        options: [
+          { key: "a", label: "menyesal" },
+          { key: "b", label: "mencubit" },
+          { key: "c", label: "menghukum" },
+          { key: "d", label: "gemetar" },
+          { key: "e", label: "membangun" },
+          { key: "f", label: "duduk" }
+        ]
+      },
+      {
+        no: 59,
+        options: [
+          { key: "a", label: "silo (gudang hasil panen)" },
+          { key: "b", label: "rumah" },
+          { key: "c", label: "bengkel" },
+          { key: "d", label: "kapal" },
+          { key: "e", label: "brankas" },
+          { key: "f", label: "gudang" }
+        ]
+      },
+      {
+        no: 60,
+        options: [
+          { key: "a", label: "diabetes" },
+          { key: "b", label: "flu" },
+          { key: "c", label: "polio" },
+          { key: "d", label: "AIDS" },
+          { key: "e", label: "skorbut (penyakit kekurangan vitamin C)" },
+          { key: "f", label: "serangan jantung" }
+        ]
+      }
+    ];
 
-      <button id="btnSubmit" onclick="submitExam(false)" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-emerald-600/20">
-        Kirim Jawaban
-      </button>
-    </div>
-  </div>
+    // ==========================================
+    // STATE VARIABEL APLIKASI
+    // ==========================================
+    let currentUser = null;
+    let currentIndex = 0; // 0 s/d 19 (Soal 41 s/d 60)
+    let userAnswers = {}; // Format: { 41: ["a", "e"], 42: ["c"] }
+    let violations = 0;
+    const MAX_VIOLATIONS = 3;
+    let timerInterval = null;
+    let timeLeft = 8 * 60; // 8 Menit
+    let examActive = false;
+    let isSubmitting = false;
 
-  <!-- QUICK NAVIGATION GRID (SOAL 41 - 60) -->
-  <div class="bg-slate-800/90 border border-slate-700/80 p-5 rounded-2xl shadow-xl backdrop-blur-sm">
-    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Peta Nomor Soal:</p>
-    <div id="questionGrid" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
-      <!-- Rendered dynamically by JavaScript -->
-    </div>
-  </div>
+    // ==========================================
+    // FLUSHKAN LOGIN & INIT WEBCAM
+    // ==========================================
+    async function processLogin() {
+      const u = document.getElementById("inputUsername").value.trim();
+      const p = document.getElementById("inputPassword").value.trim();
+      const errBox = document.getElementById("loginError");
+      const btn = document.getElementById("btnLogin");
 
-</div>
+      if (!u || !p) {
+        showError("Isi Username dan Password!");
+        return;
+      }
 
-<!-- SCREEN 4: HASIL / BLOKIR -->
-<div id="resultScreen" class="hidden bg-slate-800/90 border border-slate-700/80 p-8 sm:p-10 rounded-2xl shadow-2xl text-center max-w-md mx-auto w-full space-y-5 backdrop-blur-sm">
-  <div id="resultIcon" class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto">
-    ✅
-  </div>
-  <h2 id="resultTitle" class="text-2xl font-bold text-white">Ujian Telah Selesai!</h2>
-  <p id="resultDesc" class="text-slate-300 text-xs sm:text-sm leading-relaxed">
-    Terima kasih telah menyelesaikan seluruh pengerjaan Subtest 3 (Kesamaan Kata). Rekaman jawaban Anda telah dikirim secara aman ke sistem evaluasi.
-  </p>
+      btn.disabled = true;
+      btn.innerText = "Memverifikasi...";
+      errBox.classList.add("hidden");
 
-  <div id="resultInfoBox" class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-xs text-blue-300 leading-relaxed text-left space-y-1">
-    <p class="font-bold text-blue-400">📄 Laporan Evaluasi PDF:</p>
-    <p>Laporan hasil ujian resmi dalam format <b>PDF</b> telah dikirimkan secara otomatis ke alamat email yang terdaftar.</p>
-  </div>
-</div>
+      try {
+        // Coba koneksi backend Google Apps Script
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run.withSuccessHandler(onLoginResult).checkLogin(u, p);
+        } else {
+          // Fallback lokal / pengujian langsung
+          setTimeout(() => {
+            onLoginResult({ success: true, name: u, email: u + "@gmail.com", username: u });
+          }, 600);
+        }
+      } catch (e) {
+        onLoginResult({ success: true, name: u, email: "", username: u });
+      }
+    }
+
+    function showError(msg) {
+      const errBox = document.getElementById("loginError");
+      errBox.innerText = msg;
+      errBox.classList.remove("hidden");
+    }
+
+    function onLoginResult(res) {
+      const btn = document.getElementById("btnLogin");
+      btn.disabled = false;
+      btn.innerText = "Verifikasi & Masuk Ujian →";
+
+      if (res && res.success) {
+        currentUser = res;
+        document.getElementById("dispNama").innerText = res.name;
+
+        // Inisialisasi Webcam Proctoring
+        initWebcam();
+
+        // Switch Screen
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("instructionScreen").classList.remove("hidden");
+      } else {
+        showError(res ? res.message : "Gagal terhubung ke server login!");
+      }
+    }
+
+    function initWebcam() {
+      const video = document.getElementById("webcam");
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+          .then(stream => { video.srcObject = stream; })
+          .catch(err => { console.warn("Akses kamera ditolak atau tidak ada:", err); });
+      }
+    }
+
+    function takeSnapshot(triggerType) {
+      return new Promise((resolve) => {
+        try {
+          const video = document.getElementById("webcam");
+          const canvas = document.getElementById("snapshotCanvas");
+          if (!video.srcObject) return resolve(null);
+
+          canvas.width = video.videoWidth || 320;
+          canvas.height = video.videoHeight || 240;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const base64 = canvas.toDataURL("image/jpeg", 0.6);
+          resolve(base64);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
+
+    // ==========================================
+    // MULAI EXAM & TIMER
+    // ==========================================
+    function startActualExam() {
+      document.getElementById("instructionScreen").classList.add("hidden");
+      document.getElementById("examScreen").classList.remove("hidden");
+
+      examActive = true;
+      takeSnapshot("START_EXAM");
+      initProctoring();
+      renderQuestionGrid();
+      renderQuestion(0);
+      startTimer();
+    }
+
+    function startTimer() {
+      const timerDisplay = document.getElementById("timerDisplay");
+      timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          examActive = false;
+          alert("Waktu Ujian Telah Habis!");
+          autoSubmitExam(false);
+          return;
+        }
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        timerDisplay.innerText = `${m}:${s}`;
+      }, 1000);
+    }
+
+    // ==========================================
+    // SYSTEM PROCTORING & DETECTION KECURANGAN
+    // ==========================================
+    function initProctoring() {
+      window.addEventListener("blur", registerViolation);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) registerViolation();
+      });
+    }
+
+    async function registerViolation() {
+      if (!examActive || isSubmitting) return;
+
+      violations++;
+      document.getElementById("dispViolations").innerText = `${violations} / ${MAX_VIOLATIONS}`;
+
+      // Ambil foto proctoring kecurangan
+      const imgData = await takeSnapshot("VIOLATION_" + violations);
+
+      if (violations >= MAX_VIOLATIONS) {
+        examActive = false;
+        alert("PERINGATAN SELESAI: Anda telah melanggar aturan berpindah halaman sebanyak 3 kali. Ujian Anda didiskualifikasi secara otomatis!");
+        autoSubmitExam(true);
+      } else {
+        alert(`PERINGATAN PROCTORING (${violations}/${MAX_VIOLATIONS}): Dilarang berpindah tab atau meminimalkan layar browser! Pelanggaran ke-3 akan mendiskualifikasi ujian Anda.`);
+      }
+    }
+
+    // ==========================================
+    // RENDER SOAL & OPSI JAWABAN
+    // ==========================================
+    function renderQuestion(index) {
+      currentIndex = index;
+      const q = questionsData[currentIndex];
+      const qNum = q.no;
+
+      document.getElementById("questionIndicator").innerText = `Soal ${currentIndex + 1} dari ${questionsData.length} (No. ${qNum})`;
+
+      const selected = userAnswers[qNum] || [];
+      document.getElementById("selectedCount").innerText = selected.length;
+
+      const container = document.getElementById("optionsContainer");
+      container.innerHTML = "";
+
+      q.options.forEach(opt => {
+        const isChecked = selected.includes(opt.key);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.onclick = () => toggleOption(qNum, opt.key);
+
+        btn.className = `p-4 rounded-xl border text-left transition-all flex items-center justify-between font-medium text-sm sm:text-base ${
+          isChecked 
+            ? "bg-blue-600/30 border-blue-500 text-blue-200 shadow-md ring-1 ring-blue-500" 
+            : "bg-slate-900/60 border-slate-700/80 text-slate-300 hover:bg-slate-700/50 hover:border-slate-600"
+        }`;
+
+        btn.innerHTML = `
+          <span class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center uppercase ${
+              isChecked ? "bg-blue-500 text-white" : "bg-slate-800 text-slate-400 border border-slate-700"
+            }">${opt.key}</span>
+            <span>${opt.label}</span>
+          </span>
+          <span class="text-sm font-bold ${isChecked ? "text-blue-400 opacity-100" : "opacity-0"}">✓</span>
+        `;
+        container.appendChild(btn);
+      });
+
+      // Update Navigasi Tombol
+      document.getElementById("btnPrev").disabled = (currentIndex === 0);
+      document.getElementById("btnPrev").classList.toggle("opacity-50", currentIndex === 0);
+
+      if (currentIndex === questionsData.length - 1) {
+        document.getElementById("btnNext").classList.add("hidden");
+        document.getElementById("btnSubmit").classList.remove("hidden");
+      } else {
+        document.getElementById("btnNext").classList.remove("hidden");
+        document.getElementById("btnSubmit").classList.add("hidden");
+      }
+
+      updateGridUI();
+    }
+
+    function toggleOption(qNum, key) {
+      if (!userAnswers[qNum]) userAnswers[qNum] = [];
+
+      let list = userAnswers[qNum];
+      const pos = list.indexOf(key);
+
+      if (pos > -1) {
+        list.splice(pos, 1);
+      } else {
+        if (list.length >= 2) {
+          list.shift(); // Hapus pilihan pertama jika sudah 2 kata
+        }
+        list.push(key);
+      }
+
+      renderQuestion(currentIndex);
+    }
+
+    function navigateQuestion(direction) {
+      const nextIdx = currentIndex + direction;
+      if (nextIdx >= 0 && nextIdx < questionsData.length) {
+        renderQuestion(nextIdx);
+      }
+    }
+
+    // ==========================================
+    // GRID PETA NAVIGASI NOMOR (41-60)
+    // ==========================================
+    function renderQuestionGrid() {
+      const grid = document.getElementById("questionGrid");
+      grid.innerHTML = "";
+
+      questionsData.forEach((q, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = `grid-btn-${q.no}`;
+        btn.onclick = () => renderQuestion(idx);
+        btn.innerText = q.no;
+        grid.appendChild(btn);
+      });
+      updateGridUI();
+    }
+
+    function updateGridUI() {
+      questionsData.forEach((q, idx) => {
+        const btn = document.getElementById(`grid-btn-${q.no}`);
+        if (!btn) return;
+
+        const ans = userAnswers[q.no] || [];
+        const isCurrent = (idx === currentIndex);
+
+        let baseClass = "h-10 rounded-xl font-bold text-xs transition border flex items-center justify-center ";
+
+        if (isCurrent) {
+          baseClass += "ring-2 ring-blue-400 font-extrabold ";
+        }
+
+        if (ans.length === 2) {
+          baseClass += "bg-emerald-600/30 border-emerald-500 text-emerald-300";
+        } else if (ans.length === 1) {
+          baseClass += "bg-amber-600/30 border-amber-500 text-amber-300";
+        } else {
+          baseClass += "bg-slate-900/80 border-slate-700/80 text-slate-400 hover:bg-slate-700";
+        }
+
+        btn.className = baseClass;
+      });
+    }
+
+    // ==========================================
+    // SUBMIT JAWABAN & SELESAI
+    // ==========================================
+    function confirmSubmit() {
+      let unanswered = 0;
+      questionsData.forEach(q => {
+        if (!userAnswers[q.no] || userAnswers[q.no].length === 0) unanswered++;
+      });
+
+      let confirmMsg = "Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban ujian?";
+      if (unanswered > 0) {
+        confirmMsg = `Masih ada ${unanswered} nomor yang belum diisi. ${confirmMsg}`;
+      }
+
+      if (confirm(confirmMsg)) {
+        autoSubmitExam(false);
+      }
+    }
+
+    async function autoSubmitExam(isTakeOut) {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      examActive = false;
+      clearInterval(timerInterval);
+
+      // Ambil snapshot foto akhir
+      const finalPhoto = await takeSnapshot(isTakeOut ? "TAKEOUT" : "FINAL_SUBMIT");
+
+      // Format payload jawaban (misal { 41: "a, e" })
+      const formattedAnswers = {};
+      for (let i = 41; i <= 60; i++) {
+        const arr = userAnswers[i] || [];
+        formattedAnswers[i] = arr.join(", ");
+      }
+
+      const payload = {
+        action: "submitUjian",
+        userData: currentUser,
+        answers: formattedAnswers,
+        imageBase64: finalPhoto,
+        violations: violations,
+        isTakeOut: isTakeOut
+      };
+
+      // Tampilkan screen hasil lebih dulu
+      showResultScreen(isTakeOut);
+
+      // Kirim data ke Google Apps Script backend
+      try {
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run.submitUjian(
+            currentUser, 
+            formattedAnswers, 
+            finalPhoto, 
+            violations, 
+            isTakeOut
+          );
+        } else {
+          // Pengujian via fetch jika disajikan dari endpoint publik
+          fetch(window.location.href, {
+            method: "POST",
+            body: JSON.stringify(payload)
+          }).catch(e => console.log("Fetch submit:", e));
+        }
+      } catch (e) {
+        console.error("Gagal mengirim data submit:", e);
+      }
+    }
+
+    function showResultScreen(isTakeOut) {
+      document.getElementById("examScreen").classList.add("hidden");
+      const resScreen = document.getElementById("resultScreen");
+      resScreen.classList.remove("hidden");
+
+      if (isTakeOut) {
+        document.getElementById("resultIcon").innerHTML = "❌";
+        document.getElementById("resultIcon").className = "w-16 h-16 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner";
+        document.getElementById("resultTitle").innerText = "Diskualifikasi (Take-Out)";
+        document.getElementById("resultDesc").innerText = "Anda telah melebihi batas toleransi pelanggaran proctoring (3x berpindah tab/layar). Sesi ujian dihentikan otomatis.";
+        document.getElementById("resultInfoBox").className = "bg-rose-500/10 border border-rose-500/30 p-4 rounded-xl text-xs text-rose-300 leading-relaxed text-left space-y-1";
+      }
+    }
+  </script>
+</body>
+</html>
