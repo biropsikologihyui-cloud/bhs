@@ -296,8 +296,8 @@
   </footer>
 
   <script>
-    // MASUKKAN URL WEB APP APPS SCRIPT ANDA DI SINI
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6U74dJg-3_OxtN8pU5_pA4l_-ID_YOUR_DEPLOYMENT_ID_/exec";
+    // URL WEB APP APPS SCRIPT
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgy4gTYz1KpdQFtXxIlnYvbvjSYsPfdn9-UmE0hYjwBzQi6lKkUadANYf8Yfs-UxwP/exec";
 
     // DATA SOAL 41 - 60 (IST SUBTEST 3 - KESAMAAN KATA)
     const questionsData = [
@@ -610,7 +610,7 @@
         })
         .catch(err => {
           stream.getTracks().forEach(track => track.stop());
-          errBox.innerText = "Gagal terhubung ke server: " + err;
+          errBox.innerText = "Gagal terhubung ke server (Failed to fetch). Pastikan Web App Apps Script sudah di-deploy dengan opsi 'Who has access: Anyone'.";
           errBox.classList.remove('hidden');
           btn.disabled = false;
           btn.innerHTML = "<span>Verifikasi & Lanjut ke Petunjuk</span> <span>→</span>";
